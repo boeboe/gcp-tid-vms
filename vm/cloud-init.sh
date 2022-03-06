@@ -15,16 +15,16 @@ sudo usermod -aG docker ${USER}
 sudo apt-get -y autoremove
 
 # Get metadata information
-INSTANCE_ID=$(curl http://metadata.google.internal/computeMetadata/v1/instance/id -H "Metadata-Flavor: Google")
-ZONE=$(curl http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google")
-REGION=echo ${ZONE} | sed 's/-/ /2' | awk '{print $1}'
-
+INSTANCE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/name -H "Metadata-Flavor: Google")
+PROJECT_ZONE=$(curl http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google")
+ZONE=$(echo ${PROJECT_ZONE} | sed 's/\// /3' | awk '{print $2}')
+REGION=$(echo ${ZONE} | sed 's/-/ /2' | awk '{print $1}')
 # Start docker container
 docker run -d \
   --net host \
-  --name=${INSTANCE_ID} \
+  --name=${INSTANCE_NAME} \
   --env=HTTP_PORT=8080 \
-  --env=MSG="VM Hosted JSON Server ${INSTANCE_ID}" \
+  --env=MSG="VM Hosted JSON Server ${INSTANCE_NAME}" \
   --env=REGION=${REGION} \
   --env=ZONE=${ZONE} \
   boeboe/json-server
