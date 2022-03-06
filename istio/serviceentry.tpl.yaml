@@ -6,9 +6,7 @@ metadata:
   namespace: "REPLACE_VM_NAMESPACE"
 spec:
   hosts:
-  - REPLACE_VM_APP.REPLACE_VM_NAMESPACE
-  - REPLACE_VM_APP.REPLACE_VM_NAMESPACE.cluster.local
-  - REPLACE_VM_APP.REPLACE_VM_NAMESPACE.svc.cluster.local
+  - REPLACE_VM_APP.example.com
   - REPLACE_VM_APP.REPLACE_VM_NAMESPACE.example.com
   location: MESH_INTERNAL
   ports:

@@ -17,7 +17,7 @@ glcoud-init: ## Login into GCP environment and create or switch to project
 
 gke-create-cluster: ## Create GKE cluster
 	./scripts/gcloud.sh create-gke-cluster
-	./scripts/gcloud.sh context-gke-cluster
+	./scripts/gcloud.sh credentials-gke-cluster
 
 gke-delete-cluster: ## Delete GKE cluster
 	./scripts/gcloud.sh delete-gke-cluster
