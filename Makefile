@@ -73,7 +73,10 @@ onboard-worloads-vms: ## Onboard workloads on vms into istio
 #################
 
 clean: ## Clean temporary artifacts
-	rm -f output/*.yaml
-	rm -rf workloads/generated/*
+	rm -rf output/generated/*
 
-reset: kops-delete-clusters clean glcoud-init kops-create-clusters istio-install ## Pave and nuke
+up: glcoud-init gke-create-cluster gcp-create-vms istio-install deploy-worloads-k8s onboard-worloads-vms ## [DEMO] Create all
+
+down: gcp-delete-vms gke-delete-cluster clean ## [DEMO] Destroy all
+
+reset: down up ## [DEMO] Destroy and recreate

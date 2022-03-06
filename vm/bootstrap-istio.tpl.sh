@@ -16,7 +16,10 @@ END
 
 # Install the package containing the Istio virtual machine integration runtime
 curl -L https://storage.googleapis.com/istio-release/releases/REPLACE_ISTIO_VERSION/deb/istio-sidecar.deb -o /tmp/istio-sidecar.deb
-dpkg -i /tmp/istio-sidecar.deb
+until dpkg -i /tmp/istio-sidecar.deb ; do
+  echo "Other dpkg process is still running"
+  sleep 5
+done
 
 # Install cluster.env 
 tee -a /var/lib/istio/envoy/cluster.env << END
