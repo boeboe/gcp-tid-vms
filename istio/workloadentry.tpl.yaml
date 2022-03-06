@@ -1,0 +1,12 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: WorkloadEntry
+metadata:
+  name: "REPLACE_VM_APP"
+  namespace: "REPLACE_VM_NAMESPACE"
+spec:
+  serviceAccount: "REPLACE_VM_SERVICEACCOUNT"
+  address: "REPLACE_VM_IPADDRESS"
+  labels:
+    app: "REPLACE_VM_APP"
+    instance-id: "REPLACE_VM_APP"

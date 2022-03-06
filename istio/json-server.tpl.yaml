@@ -1,0 +1,72 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: json-server
+  namespace: json-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: json-server
+  namespace: json-server
+  labels:
+    app: json-server
+    service: json-server
+spec:
+  ports:
+  - name: http-json-server
+    port: 8080
+    targetPort: json-server
+  selector:
+    app: json-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: json-server
+  namespace: json-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: json-server
+  template:
+    metadata:
+      labels:
+        app: json-server
+    spec:
+      containers:
+        - env:
+            - name: HTTP_PORT
+              value: '8080'
+            - name: REGION
+              value: REPLACE_REGION
+            - name: ZONE
+              value: REPLACE_ZONE
+            - name: MSG
+              value: Kubernetes Hosted JSON Server
+          image: boeboe/json-server
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          name: json-server
+          ports:
+            - containerPort: 8080
+              name: json-server
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 250m
+              memory: 128Mi
+      serviceAccountName: json-server
+      terminationGracePeriodSeconds: 0

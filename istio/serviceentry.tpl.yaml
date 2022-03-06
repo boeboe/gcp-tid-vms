@@ -1,0 +1,22 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: "REPLACE_VM_APP"
+  namespace: "REPLACE_VM_NAMESPACE"
+spec:
+  hosts:
+  - REPLACE_VM_APP.REPLACE_VM_NAMESPACE
+  - REPLACE_VM_APP.REPLACE_VM_NAMESPACE.cluster.local
+  - REPLACE_VM_APP.REPLACE_VM_NAMESPACE.svc.cluster.local
+  - REPLACE_VM_APP.REPLACE_VM_NAMESPACE.example.com
+  location: MESH_INTERNAL
+  ports:
+  - number: 8080
+    name: http
+    protocol: HTTP
+    targetPort: 8080
+  resolution: STATIC
+  workloadSelector:
+    labels:
+      app: "REPLACE_VM_APP"

@@ -1,0 +1,26 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: WorkloadGroup
+metadata:
+  name: REPLACE_VM_APP
+  namespace: REPLACE_VM_NAMESPACE
+spec:
+  metadata:
+    labels:
+      app: REPLACE_VM_APP
+  probe:
+    failureThreshold: 3
+    httpGet:
+      host: localhost
+      path: /healthcheck
+      port: 8080
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 4
+    successThreshold: 3
+    timeoutSeconds: 3
+  template:
+    network: ''
+    ports:
+      http: 8080
+    serviceAccount: REPLACE_VM_SERVICEACCOUNT
