@@ -58,7 +58,7 @@ fi
 
 
 if [[ $1 = "delete-gke-cluster" ]]; then
-  gcloud container clusters delete ${GKE_CLUSTER_NAME} --zone ${GKE_COMPUTE_ZONE}
+  gcloud container clusters delete ${GKE_CLUSTER_NAME} --zone ${GKE_COMPUTE_ZONE} --quiet
   print_info "GKE cluster deleted"
   exit 0
 fi
@@ -89,10 +89,10 @@ fi
 
 
 if [[ $1 = "delete-gcp-vms" ]]; then
-  gcloud compute firewall-rules delete allow-8080 
+  gcloud compute firewall-rules delete allow-8080 --quiet
   print_info "GCP firewall rule deleted"
-  gcloud compute instances delete ${ISTIO_VM_APP_1} --zone ${GKE_COMPUTE_ZONE}
-  gcloud compute instances delete ${ISTIO_VM_APP_2} --zone ${GKE_COMPUTE_ZONE}
+  gcloud compute instances delete ${ISTIO_VM_APP_1} --zone ${GKE_COMPUTE_ZONE} --quiet
+  gcloud compute instances delete ${ISTIO_VM_APP_2} --zone ${GKE_COMPUTE_ZONE} --quiet
   print_info "GCP vms deleted"
   exit 0
 fi

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: json-server
   labels:
-    name: json-server
     istio-injection: enabled
+    name: json-server
+  name: json-server
