@@ -2,12 +2,12 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
-  name: REPLACE_VM_APP
+  name: REPLACE_VM_APP_NAME
   namespace: REPLACE_VM_NAMESPACE
 spec:
   hosts:
-    - REPLACE_VM_APP.example.com
-    - REPLACE_VM_APP.REPLACE_VM_NAMESPACE.example.com
+    - REPLACE_VM_APP_NAME.example.com
+    - REPLACE_VM_APP_NAME.REPLACE_VM_NAMESPACE.example.com
   location: MESH_INTERNAL
   ports:
     - name: http
@@ -17,4 +17,4 @@ spec:
   resolution: STATIC
   workloadSelector:
     labels:
-      app: REPLACE_VM_APP
+      app: REPLACE_VM_APP_NAME

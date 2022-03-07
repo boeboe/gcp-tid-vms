@@ -18,80 +18,72 @@ if [[ $1 = "onboard" ]]; then
   k create serviceaccount "${ISTIO_VM_SERVICEACCOUNT_1}" -n "${ISTIO_VM_NAMESPACE}"
   k create serviceaccount "${ISTIO_VM_SERVICEACCOUNT_2}" -n "${ISTIO_VM_NAMESPACE}"
 
-  generate_workloadgroup_yaml \
-    ${ISTIO_VM_APP_1} \
-    ${ISTIO_VM_NAMESPACE} \
-    ${ISTIO_VM_SERVICEACCOUNT_1}
-  generate_workloadgroup_yaml \
-    ${ISTIO_VM_APP_2} \
-    ${ISTIO_VM_NAMESPACE} \
-    ${ISTIO_VM_SERVICEACCOUNT_2}
-  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/workloadgroup.yaml
-  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/workloadgroup.yaml
+  generate_workloadgroup_yaml ${ISTIO_VM_APP_1_NAME} ${ISTIO_VM_NAMESPACE} ${ISTIO_VM_SERVICEACCOUNT_1}
+  generate_workloadgroup_yaml ${ISTIO_VM_APP_2_NAME} ${ISTIO_VM_NAMESPACE} ${ISTIO_VM_SERVICEACCOUNT_2}
+  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/workloadgroup.yaml
+  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/workloadgroup.yaml
   print_info "VM WorkloadGroup yaml files generated and deployed"
   
-  generate_workloadentry_yaml \
-    ${ISTIO_VM_APP_1} \
-    ${ISTIO_VM_NAMESPACE} \
-    ${ISTIO_VM_SERVICEACCOUNT_1} \
-    ${GKE_COMPUTE_ZONE}
-  generate_workloadentry_yaml \
-    ${ISTIO_VM_APP_2} \
-    ${ISTIO_VM_NAMESPACE} \
-    ${ISTIO_VM_SERVICEACCOUNT_2} \
-    ${GKE_COMPUTE_ZONE}
-  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/workloadentry.yaml
-  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/workloadentry.yaml
+  for ISTIO_VM_APP_1_INSTANCE in ${ISTIO_VM_APP_1_INSTANCES}; do
+    generate_workloadentry_yaml \
+      ${ISTIO_VM_APP_1_NAME} \
+      ${ISTIO_VM_APP_1_INSTANCE} \
+      ${ISTIO_VM_NAMESPACE} \
+      ${ISTIO_VM_SERVICEACCOUNT_1} \
+      ${GKE_COMPUTE_ZONE}
+    k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/workloadentry-${ISTIO_VM_APP_1_INSTANCE}.yaml
+  done
+  for ISTIO_VM_APP_2_INSTANCE in ${ISTIO_VM_APP_2_INSTANCES}; do
+    generate_workloadentry_yaml \
+      ${ISTIO_VM_APP_2_NAME} \
+      ${ISTIO_VM_APP_2_INSTANCE} \
+      ${ISTIO_VM_NAMESPACE} \
+      ${ISTIO_VM_SERVICEACCOUNT_2} \
+      ${GKE_COMPUTE_ZONE}
+    k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/workloadentry-${ISTIO_VM_APP_2_INSTANCE}.yaml
+  done
   print_info "VM WorkloadEntry yaml files generated and deployed"
 
-  generate_serviceentry_yaml \
-    ${ISTIO_VM_APP_1} \
-    ${ISTIO_VM_NAMESPACE}
-  generate_serviceentry_yaml \
-    ${ISTIO_VM_APP_2} \
-    ${ISTIO_VM_NAMESPACE}
-  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/serviceentry.yaml
-  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/serviceentry.yaml
+  generate_serviceentry_yaml ${ISTIO_VM_APP_1_NAME} ${ISTIO_VM_NAMESPACE}
+  generate_serviceentry_yaml ${ISTIO_VM_APP_2_NAME} ${ISTIO_VM_NAMESPACE}
+  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/serviceentry.yaml
+  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/serviceentry.yaml
   print_info "VM ServiceEntry yaml files generated and deployed"
 
-  generate_service_yaml \
-    ${ISTIO_VM_APP_1} \
-    ${ISTIO_VM_NAMESPACE}
-  generate_service_yaml \
-    ${ISTIO_VM_APP_2} \
-    ${ISTIO_VM_NAMESPACE}
-  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/service.yaml
-  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/service.yaml
+  generate_service_yaml ${ISTIO_VM_APP_1_NAME} ${ISTIO_VM_NAMESPACE}
+  generate_service_yaml ${ISTIO_VM_APP_2_NAME} ${ISTIO_VM_NAMESPACE}
+  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/service.yaml
+  k apply -f ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/service.yaml
   print_info "VM Service yaml files generated and deployed"
 
-  generate_vm_files ${ISTIO_VM_APP_1}
-  generate_vm_files ${ISTIO_VM_APP_2}
+  generate_vm_files ${ISTIO_VM_APP_1_NAME}
+  generate_vm_files ${ISTIO_VM_APP_2_NAME}
   print_info "VM onboarding files generated"
 
   generate_bootstrap_istio \
-    ${ISTIO_VM_APP_1} \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/root-cert.pem \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/istio-token \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/cluster.env \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/mesh.yaml \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1}/hosts \
+    ${ISTIO_VM_APP_1_NAME} \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/root-cert.pem \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/istio-token \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/cluster.env \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/mesh.yaml \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_1_NAME}/hosts \
     ${ISTIO_VERSION}  
   generate_bootstrap_istio \
-    ${ISTIO_VM_APP_2} \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/root-cert.pem \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/istio-token \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/cluster.env \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/mesh.yaml \
-    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2}/hosts \
+    ${ISTIO_VM_APP_2_NAME} \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/root-cert.pem \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/istio-token \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/cluster.env \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/mesh.yaml \
+    ${BASE_DIR}/output/generated/${ISTIO_VM_APP_2_NAME}/hosts \
     ${ISTIO_VERSION}
   print_info "VM istio bootstrap files generated"
 
-  bootstrap_istio \
-    ${ISTIO_VM_APP_1} \
-    ${GKE_COMPUTE_ZONE}
-  bootstrap_istio \
-    ${ISTIO_VM_APP_2} \
-    ${GKE_COMPUTE_ZONE}
+  for ISTIO_VM_APP_1_INSTANCE in ${ISTIO_VM_APP_1_INSTANCES}; do
+    bootstrap_istio ${ISTIO_VM_APP_1_NAME} ${ISTIO_VM_APP_1_INSTANCE} ${GKE_COMPUTE_ZONE}
+  done
+  for ISTIO_VM_APP_2_INSTANCE in ${ISTIO_VM_APP_2_INSTANCES}; do
+    bootstrap_istio ${ISTIO_VM_APP_2_NAME} ${ISTIO_VM_APP_2_INSTANCE} ${GKE_COMPUTE_ZONE}
+  done
   print_info "VM istio bootstrap files deployed and started"
 
   exit 0

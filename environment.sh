@@ -32,5 +32,7 @@ export ISTIO_VM_NAMESPACE=vm-namespace
 export ISTIO_VM_SERVICEACCOUNT_1=vm-service-account-1
 export ISTIO_VM_SERVICEACCOUNT_2=vm-service-account-2
 
-export ISTIO_VM_APP_1=vm-app-1
-export ISTIO_VM_APP_2=vm-app-2
+export ISTIO_VM_APP_1_NAME=vm-app-1
+export ISTIO_VM_APP_1_INSTANCES="vm-app-1-a vm-app-1-b"
+export ISTIO_VM_APP_2_NAME=vm-app-2
+export ISTIO_VM_APP_2_INSTANCES="vm-app-2-a vm-app-2-b"

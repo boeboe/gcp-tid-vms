@@ -7,14 +7,14 @@ export BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && c
 # Generate Istio WorkloadGroup
 #   REF: https://istio.io/latest/docs/reference/config/networking/workload-group
 # Arguments: 
-#   (1) VM_APP
+#   (1) VM_APP_NAME
 #   (2) VM_NAMESPACE
 #   (3) VM_SERVICEACCOUNT
 generate_workloadgroup_yaml() { 
   mkdir -p ${BASE_DIR}/output/generated/${1}
 
   cat ${BASE_DIR}/istio/workloadgroup.tpl.yaml \
-    | sed "s/REPLACE_VM_APP/${1}/g" \
+    | sed "s/REPLACE_VM_APP_NAME/${1}/g" \
     | sed "s/REPLACE_VM_NAMESPACE/${2}/g" \
     | sed "s/REPLACE_VM_SERVICEACCOUNT/${3}/g" \
     > ${BASE_DIR}/output/generated/${1}/workloadgroup.yaml
@@ -23,35 +23,37 @@ generate_workloadgroup_yaml() {
 # Generate Istio WorkloadEntry
 #   REF: https://istio.io/latest/docs/reference/config/networking/workload-entry
 # Arguments: 
-#   (1) VM_APP
-#   (2) VM_NAMESPACE
-#   (3) VM_SERVICEACCOUNT
-#   (3) GKE_COMPUTE_ZONE
+#   (1) VM_APP_NAME
+#   (2) VM_APP_INSTANCE
+#   (3) VM_NAMESPACE
+#   (4) VM_SERVICEACCOUNT
+#   (5) GKE_COMPUTE_ZONE
 generate_workloadentry_yaml() { 
   mkdir -p ${BASE_DIR}/output/generated/${1}
   
-  VM_IPADDRESS=$(gcloud compute instances describe ${1} \
+  VM_IPADDRESS=$(gcloud compute instances describe ${2} \
     --format='get(networkInterfaces[0].networkIP)' \
-    --zone=${GKE_COMPUTE_ZONE})
+    --zone=${5})
 
   cat ${BASE_DIR}/istio/workloadentry.tpl.yaml \
-    | sed "s/REPLACE_VM_APP/${1}/g" \
-    | sed "s/REPLACE_VM_NAMESPACE/${2}/g" \
-    | sed "s/REPLACE_VM_SERVICEACCOUNT/${3}/g" \
+    | sed "s/REPLACE_VM_APP_NAME/${1}/g" \
+    | sed "s/REPLACE_VM_APP_INSTANCE/${2}/g" \
+    | sed "s/REPLACE_VM_NAMESPACE/${3}/g" \
+    | sed "s/REPLACE_VM_SERVICEACCOUNT/${4}/g" \
     | sed "s/REPLACE_VM_IPADDRESS/${VM_IPADDRESS}/g" \
-    > ${BASE_DIR}/output/generated/${1}/workloadentry.yaml
+    > ${BASE_DIR}/output/generated/${1}/workloadentry-${2}.yaml
 }
 
 # Generate Istio WorkloadGroup
 #   REF: https://istio.io/latest/docs/reference/config/networking/service-entry
 # Arguments: 
-#   (1) VM_APP
+#   (1) VM_APP_NAME
 #   (2) VM_NAMESPACE
 generate_serviceentry_yaml() { 
   mkdir -p ${BASE_DIR}/output/generated/${1}
 
   cat ${BASE_DIR}/istio/serviceentry.tpl.yaml \
-    | sed "s/REPLACE_VM_APP/${1}/g" \
+    | sed "s/REPLACE_VM_APP_NAME/${1}/g" \
     | sed "s/REPLACE_VM_NAMESPACE/${2}/g" \
     > ${BASE_DIR}/output/generated/${1}/serviceentry.yaml
 }
@@ -59,19 +61,19 @@ generate_serviceentry_yaml() {
 # Generate Kubernetes Service
 #   REF: https://kubernetes.io/docs/reference/kubernetes-api/service-resources/service-v1
 # Arguments: 
-#   (1) VM_APP
+#   (1) VM_APP_NAME
 #   (2) VM_NAMESPACE
 generate_service_yaml() { 
   mkdir -p ${BASE_DIR}/output/generated/${1}
 
   cat ${BASE_DIR}/istio/service.tpl.yaml \
-    | sed "s/REPLACE_VM_APP/${1}/g" \
+    | sed "s/REPLACE_VM_APP_NAME/${1}/g" \
     | sed "s/REPLACE_VM_NAMESPACE/${2}/g" \
     > ${BASE_DIR}/output/generated/${1}/service.yaml
 }
 
 # Arguments:
-#   (1) VM_APP
+#   (1) VM_APP_NAME
 generate_vm_files() {
   mkdir -p ${BASE_DIR}/output/generated/${1}
 
@@ -85,7 +87,7 @@ generate_vm_files() {
 #  REF: https://istio.io/latest/docs/setup/install/virtual-machine
 #       https://istio.io/latest/docs/reference/commands/istioctl/#istioctl-experimental-workload-entry-configure
 # Arguments: 
-#   (1) VM_APP
+#   (1) VM_APP_NAME
 #   (2) ROOT_CERT
 #   (3) ISTIO_TOKEN
 #   (4) CLUSER_ENV
@@ -107,11 +109,12 @@ generate_bootstrap_istio() {
 
 # Tranfer istio bootstrap script to VM ad start it
 # Arguments:
-#   (1) VM_APP
-#   (2) GKE_COMPUTE_ZONE
+#   (1) VM_APP_NAME
+#   (2) VM_APP_INSTANCE
+#   (3) GKE_COMPUTE_ZONE
 bootstrap_istio() {
-  gcloud compute scp ${BASE_DIR}/output/generated/${1}/bootstrap-istio.sh ${1}:~ --zone=${2}
-  gcloud compute ssh ${1} --zone=${2} --command="sudo mv ~/bootstrap-istio.sh /usr/local/bin/bootstrap-istio.sh"
-  gcloud compute ssh ${1} --zone=${2} --command="sudo chmod +x /usr/local/bin/bootstrap-istio.sh"
-  gcloud compute ssh ${1} --zone=${2} --command="sudo bootstrap-istio.sh"
+  gcloud compute scp ${BASE_DIR}/output/generated/${1}/bootstrap-istio.sh ${2}:~ --zone=${3}
+  gcloud compute ssh ${2} --zone=${3} --command="sudo mv ~/bootstrap-istio.sh /usr/local/bin/bootstrap-istio.sh"
+  gcloud compute ssh ${2} --zone=${3} --command="sudo chmod +x /usr/local/bin/bootstrap-istio.sh"
+  gcloud compute ssh ${2} --zone=${3} --command="sudo bootstrap-istio.sh"
 }

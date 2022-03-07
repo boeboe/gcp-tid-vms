@@ -2,12 +2,12 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: WorkloadGroup
 metadata:
-  name: REPLACE_VM_APP
+  name: REPLACE_VM_APP_NAME
   namespace: REPLACE_VM_NAMESPACE
 spec:
   metadata:
     labels:
-      app: REPLACE_VM_APP
+      app: REPLACE_VM_APP_NAME
   probe:
     failureThreshold: 3
     httpGet:

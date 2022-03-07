@@ -65,21 +65,24 @@ fi
 
 
 if [[ $1 = "create-gcp-vms" ]]; then
-  gcloud compute instances create ${ISTIO_VM_APP_1} \
-    --image=${VM_BASE_IMAGE} \
-    --image-project=${VM_BASE_IMAGE_PROJECT} \
-    --machine-type=${VM_MACHINE_TYPE} \
-    --metadata-from-file=startup-script=${BASE_DIR}/vm/cloud-init.sh \
-    --tags=allow-8080 \
-    --zone ${GKE_COMPUTE_ZONE}
-
-  gcloud compute instances create ${ISTIO_VM_APP_2} \
-    --image=${VM_BASE_IMAGE} \
-    --image-project=${VM_BASE_IMAGE_PROJECT} \
-    --machine-type=${VM_MACHINE_TYPE} \
-    --metadata-from-file=startup-script=${BASE_DIR}/vm/cloud-init.sh \
-    --tags=allow-8080 \
-    --zone ${GKE_COMPUTE_ZONE}
+  for ISTIO_VM_APP_1_INSTANCE in ${ISTIO_VM_APP_1_INSTANCES}; do
+    gcloud compute instances create ${ISTIO_VM_APP_1_INSTANCE} \
+      --image=${VM_BASE_IMAGE} \
+      --image-project=${VM_BASE_IMAGE_PROJECT} \
+      --machine-type=${VM_MACHINE_TYPE} \
+      --metadata-from-file=startup-script=${BASE_DIR}/vm/cloud-init.sh \
+      --tags=allow-8080 \
+      --zone ${GKE_COMPUTE_ZONE}
+  done
+  for ISTIO_VM_APP_2_INSTANCE in ${ISTIO_VM_APP_2_INSTANCES}; do
+    gcloud compute instances create ${ISTIO_VM_APP_2_INSTANCE} \
+      --image=${VM_BASE_IMAGE} \
+      --image-project=${VM_BASE_IMAGE_PROJECT} \
+      --machine-type=${VM_MACHINE_TYPE} \
+      --metadata-from-file=startup-script=${BASE_DIR}/vm/cloud-init.sh \
+      --tags=allow-8080 \
+      --zone ${GKE_COMPUTE_ZONE}
+  done
   print_info "GCP vms deployed"
 
   gcloud compute firewall-rules create allow-8080 --allow=tcp:8080 --description="Allow incoming traffic on TCP port 8080" --direction=INGRESS --target-tags allow-8080
@@ -91,8 +94,13 @@ fi
 if [[ $1 = "delete-gcp-vms" ]]; then
   gcloud compute firewall-rules delete allow-8080 --quiet
   print_info "GCP firewall rule deleted"
-  gcloud compute instances delete ${ISTIO_VM_APP_1} --zone ${GKE_COMPUTE_ZONE} --quiet
-  gcloud compute instances delete ${ISTIO_VM_APP_2} --zone ${GKE_COMPUTE_ZONE} --quiet
+
+  for ISTIO_VM_APP_1_INSTANCE in ${ISTIO_VM_APP_1_INSTANCES}; do
+    gcloud compute instances delete ${ISTIO_VM_APP_1_INSTANCE} --zone ${GKE_COMPUTE_ZONE} --quiet
+  done
+  for ISTIO_VM_APP_2_INSTANCE in ${ISTIO_VM_APP_2_INSTANCES}; do
+    gcloud compute instances delete ${ISTIO_VM_APP_2_INSTANCE} --zone ${GKE_COMPUTE_ZONE} --quiet
+  done
   print_info "GCP vms deleted"
   exit 0
 fi
